@@ -13,10 +13,7 @@ import {
   Loader2,
   Receipt,
   ShoppingCart,
-  User,
-  ChevronDown,
   IndianRupee,
-  UserPlus,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -46,19 +43,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
@@ -175,16 +159,12 @@ export default function BillingPage() {
   const [gpayAmount, setGpayAmount] = useState("")
   const [taxPercent, setTaxPercent] = useState(5)
   const [discount, setDiscount] = useState(0)
-  const [customerOpen, setCustomerOpen] = useState(false)
-  const [customerSearch, setCustomerSearch] = useState("")
+  const [customerName, setCustomerName] = useState("")
+  const [customerPhone, setCustomerPhone] = useState("")
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [generatedBill, setGeneratedBill] = useState<any>(null)
   const [cancelDialog, setCancelDialog] = useState(false)
-  const [newCustomerDialog, setNewCustomerDialog] = useState(false)
-  const [newCustomerName, setNewCustomerName] = useState("")
-  const [newCustomerPhone, setNewCustomerPhone] = useState("")
-  const [creatingCustomer, setCreatingCustomer] = useState(false)
   const printRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -278,6 +258,8 @@ export default function BillingPage() {
     setCashAmount("")
     setGpayAmount("")
     setDiscount(0)
+    setCustomerName("")
+    setCustomerPhone("")
     setSelectedCustomer(null)
     setGeneratedBill(null)
   }, [])
@@ -299,6 +281,20 @@ export default function BillingPage() {
 
     setSubmitting(true)
     try {
+      let customerId = selectedCustomer?.id
+
+      if (!customerId && customerName.trim() && customerPhone.trim()) {
+        const createRes = await fetch("/api/customers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: customerName.trim(), phone: customerPhone.trim() }),
+        })
+        if (createRes.ok) {
+          const data = await createRes.json()
+          customerId = (data.data || data.customer || data).id
+        }
+      }
+
       const payload: any = {
         items: cart.map((item) => ({
           productId: item.productId,
@@ -316,8 +312,8 @@ export default function BillingPage() {
         gpayAmount: paymentMode === "GPAY" ? total : paymentMode === "SPLIT" ? parseFloat(gpayAmount || "0") : 0,
       }
 
-      if (selectedCustomer) {
-        payload.customerId = selectedCustomer.id
+      if (customerId) {
+        payload.customerId = customerId
       }
 
       const res = await fetch("/api/bills", {
@@ -370,37 +366,6 @@ export default function BillingPage() {
       setCancelDialog(false)
     } catch (error: any) {
       toast.error(error.message || "Failed to cancel bill")
-    }
-  }
-
-  async function handleCreateCustomer() {
-    if (!newCustomerName.trim() || !newCustomerPhone.trim()) {
-      toast.error("Name and phone are required")
-      return
-    }
-    setCreatingCustomer(true)
-    try {
-      const res = await fetch("/api/customers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newCustomerName.trim(), phone: newCustomerPhone.trim() }),
-      })
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.message || "Failed to create customer")
-      }
-      const data = await res.json()
-      const newCust = data.data || data.customer || data
-      setCustomers((prev) => [...prev, { id: newCust.id, name: newCust.name, phone: newCust.phone }])
-      setSelectedCustomer({ id: newCust.id, name: newCust.name, phone: newCust.phone })
-      setNewCustomerDialog(false)
-      setNewCustomerName("")
-      setNewCustomerPhone("")
-      toast.success("Customer created")
-    } catch (error: any) {
-      toast.error(error.message || "Failed to create customer")
-    } finally {
-      setCreatingCustomer(false)
     }
   }
 
@@ -709,78 +674,22 @@ export default function BillingPage() {
 
                 <div className="space-y-2">
                   <Label>Customer (optional)</Label>
-                  <Popover open={customerOpen} onOpenChange={setCustomerOpen}>
-                    <PopoverTrigger className="w-full justify-between flex items-center gap-2 rounded-lg border border-input bg-transparent px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors">
-                      {selectedCustomer
-                        ? `${selectedCustomer.name} (${selectedCustomer.phone})`
-                        : "Select customer..."}
-                      <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-                      <Command>
-                        <CommandInput
-                          placeholder="Search customer..."
-                          value={customerSearch}
-                          onValueChange={setCustomerSearch}
-                        />
-                        <CommandList>
-                          <CommandEmpty>
-                            <div className="flex flex-col items-center gap-2 py-4">
-                              <p className="text-sm text-muted-foreground">No customer found</p>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  setCustomerOpen(false)
-                                  setNewCustomerDialog(true)
-                                }}
-                              >
-                                <UserPlus className="h-4 w-4 mr-1" />
-                                Add New Customer
-                              </Button>
-                            </div>
-                          </CommandEmpty>
-                          <CommandGroup>
-                            {customers
-                              .filter(
-                                (c) =>
-                                  c.name
-                                    .toLowerCase()
-                                    .includes(customerSearch.toLowerCase()) ||
-                                  c.phone.includes(customerSearch)
-                              )
-                              .map((customer) => (
-                                <CommandItem
-                                  key={customer.id}
-                                  value={customer.id}
-                                  onSelect={() => {
-                                    setSelectedCustomer(customer)
-                                    setCustomerOpen(false)
-                                  }}
-                                >
-                                  <User className="h-4 w-4 mr-2" />
-                                  <div>
-                                    <p>{customer.name}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                      {customer.phone}
-                                    </p>
-                                  </div>
-                                </CommandItem>
-                              ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input
+                      placeholder="Name"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                    />
+                    <Input
+                      placeholder="Phone"
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                    />
+                  </div>
                   {selectedCustomer && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 text-xs"
-                      onClick={() => setSelectedCustomer(null)}
-                    >
-                      <X className="h-3 w-3 mr-1" /> Clear
-                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      Selected: {selectedCustomer.name} ({selectedCustomer.phone})
+                    </p>
                   )}
                 </div>
 
@@ -798,46 +707,6 @@ export default function BillingPage() {
           </>
         )}
       </div>
-
-      <Dialog open={newCustomerDialog} onOpenChange={setNewCustomerDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New Customer</DialogTitle>
-            <DialogDescription>
-              Enter the customer details to add them to the system.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="space-y-2">
-              <Label htmlFor="new-cust-name">Name</Label>
-              <Input
-                id="new-cust-name"
-                placeholder="Customer name"
-                value={newCustomerName}
-                onChange={(e) => setNewCustomerName(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="new-cust-phone">Phone</Label>
-              <Input
-                id="new-cust-phone"
-                placeholder="Phone number"
-                value={newCustomerPhone}
-                onChange={(e) => setNewCustomerPhone(e.target.value)}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setNewCustomerDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleCreateCustomer} disabled={creatingCustomer}>
-              {creatingCustomer && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Add Customer
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       <Dialog open={cancelDialog} onOpenChange={setCancelDialog}>
         <DialogContent>
