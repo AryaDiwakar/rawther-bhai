@@ -8,7 +8,6 @@ const prisma = new PrismaClient({ adapter })
 async function main() {
   console.log("Seeding database...")
 
-  // Clean existing data in correct order
   await prisma.auditLog.deleteMany()
   await prisma.dailyClosing.deleteMany()
   await prisma.orderPayment.deleteMany()
@@ -32,32 +31,18 @@ async function main() {
   const hashedPassword = await bcrypt.hash("admin123", 10)
   const hashedManagerPassword = await bcrypt.hash("manager123", 10)
 
-  // Users
   const admin = await prisma.user.create({
-    data: {
-      name: "Admin",
-      email: "admin@hotel.com",
-      password: hashedPassword,
-      role: "ADMIN",
-      active: true,
-    },
+    data: { name: "Admin", email: "admin@hotel.com", password: hashedPassword, role: "ADMIN", active: true },
   })
 
   const manager = await prisma.user.create({
-    data: {
-      name: "Manager",
-      email: "manager@hotel.com",
-      password: hashedManagerPassword,
-      role: "MANAGER",
-      active: true,
-    },
+    data: { name: "Manager", email: "manager@hotel.com", password: hashedManagerPassword, role: "MANAGER", active: true },
   })
 
   console.log("Users created")
 
-  // Expense Categories
-  const expenseCategories = await Promise.all([
-    prisma.expenseCategory.create({ data: { name: "Food", description: "Food and kitchen supplies" } }),
+  await Promise.all([
+    prisma.expenseCategory.create({ data: { name: "Food Supplies", description: "Raw ingredients and kitchen supplies" } }),
     prisma.expenseCategory.create({ data: { name: "Utilities", description: "Electricity, water, gas bills" } }),
     prisma.expenseCategory.create({ data: { name: "Rent", description: "Property rent" } }),
     prisma.expenseCategory.create({ data: { name: "Salary", description: "Employee salaries" } }),
@@ -68,73 +53,139 @@ async function main() {
 
   console.log("Expense categories created")
 
-  // Product Categories
-  const beveragesCat = await prisma.category.create({ data: { name: "Beverages", description: "Cold and hot drinks" } })
-  const foodCat = await prisma.category.create({ data: { name: "Food", description: "Main course meals" } })
-  const snacksCat = await prisma.category.create({ data: { name: "Snacks", description: "Light bites and starters" } })
-  const dessertsCat = await prisma.category.create({ data: { name: "Desserts", description: "Sweet treats" } })
-  const othersCat = await prisma.category.create({ data: { name: "Others", description: "Other items" } })
+  const sidesNonVeg = await prisma.category.create({ data: { name: "Sides Non-Veg", description: "Non-vegetarian starters" } })
+  const sidesVeg = await prisma.category.create({ data: { name: "Sides Veg", description: "Vegetarian starters" } })
+  const nonVegGravy = await prisma.category.create({ data: { name: "Non-Veg Gravy", description: "Non-vegetarian gravies" } })
+  const vegGravy = await prisma.category.create({ data: { name: "Veg Gravy", description: "Vegetarian gravies" } })
+  const tiffin = await prisma.category.create({ data: { name: "Tiffin", description: "Traditional breakfast items" } })
+  const parotta = await prisma.category.create({ data: { name: "Parotta Items", description: "Parotta based dishes" } })
+  const biriyani = await prisma.category.create({ data: { name: "Meals / Biriyani", description: "Biriyani and meal items" } })
+  const chinese = await prisma.category.create({ data: { name: "Chinese", description: "Chinese cuisine" } })
 
   console.log("Product categories created")
 
-  // Products
   const products = await Promise.all([
-    prisma.product.create({ data: { name: "Chai", categoryId: beveragesCat.id, price: 20 } }),
-    prisma.product.create({ data: { name: "Coffee", categoryId: beveragesCat.id, price: 40 } }),
-    prisma.product.create({ data: { name: "Cold Coffee", categoryId: beveragesCat.id, price: 60 } }),
-    prisma.product.create({ data: { name: "Mango Shake", categoryId: beveragesCat.id, price: 80 } }),
-    prisma.product.create({ data: { name: "Lassi", categoryId: beveragesCat.id, price: 50 } }),
-    prisma.product.create({ data: { name: "Chicken Biryani", categoryId: foodCat.id, price: 250 } }),
-    prisma.product.create({ data: { name: "Veg Biryani", categoryId: foodCat.id, price: 200 } }),
-    prisma.product.create({ data: { name: "Butter Chicken", categoryId: foodCat.id, price: 300 } }),
-    prisma.product.create({ data: { name: "Dal Makhani", categoryId: foodCat.id, price: 180 } }),
-    prisma.product.create({ data: { name: "Naan", categoryId: foodCat.id, price: 30 } }),
-    prisma.product.create({ data: { name: "Samosa", categoryId: snacksCat.id, price: 20 } }),
-    prisma.product.create({ data: { name: "French Fries", categoryId: snacksCat.id, price: 80 } }),
-    prisma.product.create({ data: { name: "Chicken Pakora", categoryId: snacksCat.id, price: 120 } }),
-    prisma.product.create({ data: { name: "Gulab Jamun", categoryId: dessertsCat.id, price: 60 } }),
-    prisma.product.create({ data: { name: "Ice Cream", categoryId: dessertsCat.id, price: 40 } }),
-    prisma.product.create({ data: { name: "Cold Drink", categoryId: beveragesCat.id, price: 40 } }),
-    prisma.product.create({ data: { name: "Paneer Butter Masala", categoryId: foodCat.id, price: 220 } }),
+    // Sides Non-Veg
+    prisma.product.create({ data: { name: "Chicken 65 (5 pcs)", categoryId: sidesNonVeg.id, price: 120 } }),
+    prisma.product.create({ data: { name: "Chicken 65 Boneless (10 pcs)", categoryId: sidesNonVeg.id, price: 150 } }),
+    prisma.product.create({ data: { name: "Kadai 65 (1 Full)", categoryId: sidesNonVeg.id, price: 120 } }),
+    prisma.product.create({ data: { name: "Lolly Pop (6 pcs) Dry", categoryId: sidesNonVeg.id, price: 150 } }),
+    prisma.product.create({ data: { name: "Lolly Pop (6 pcs) Saucy", categoryId: sidesNonVeg.id, price: 160 } }),
+    prisma.product.create({ data: { name: "Leg Fry", categoryId: sidesNonVeg.id, price: 70 } }),
+
+    // Sides Veg
+    prisma.product.create({ data: { name: "Paneer 65 (10 pcs)", categoryId: sidesVeg.id, price: 140 } }),
+    prisma.product.create({ data: { name: "Mushroom 65", categoryId: sidesVeg.id, price: 130 } }),
+    prisma.product.create({ data: { name: "Gobi 65", categoryId: sidesVeg.id, price: 110 } }),
+
+    // Non-Veg Gravy
+    prisma.product.create({ data: { name: "Chicken Gravy (2 pcs)", categoryId: nonVegGravy.id, price: 50 } }),
+    prisma.product.create({ data: { name: "Chilli Chicken (10 pcs)", categoryId: nonVegGravy.id, price: 150 } }),
+    prisma.product.create({ data: { name: "Chicken Manchurian (10 pcs)", categoryId: nonVegGravy.id, price: 150 } }),
+    prisma.product.create({ data: { name: "Ginger Chicken (10 pcs)", categoryId: nonVegGravy.id, price: 160 } }),
+    prisma.product.create({ data: { name: "Garlic Chicken (10 pcs)", categoryId: nonVegGravy.id, price: 160 } }),
+    prisma.product.create({ data: { name: "Dragon Chicken (10 pcs)", categoryId: nonVegGravy.id, price: 180 } }),
+    prisma.product.create({ data: { name: "Honey Chicken", categoryId: nonVegGravy.id, price: 170 } }),
+    prisma.product.create({ data: { name: "Schezwan Chicken (10 pcs)", categoryId: nonVegGravy.id, price: 160 } }),
+    prisma.product.create({ data: { name: "Pepper Chicken (10 pcs)", categoryId: nonVegGravy.id, price: 160 } }),
+
+    // Veg Gravy
+    prisma.product.create({ data: { name: "Chilli Paneer", categoryId: vegGravy.id, price: 150 } }),
+    prisma.product.create({ data: { name: "Paneer Manchurian", categoryId: vegGravy.id, price: 160 } }),
+    prisma.product.create({ data: { name: "Chilli Mushroom", categoryId: vegGravy.id, price: 130 } }),
+    prisma.product.create({ data: { name: "Mushroom Manchurian", categoryId: vegGravy.id, price: 160 } }),
+    prisma.product.create({ data: { name: "Chilli Gobi", categoryId: vegGravy.id, price: 120 } }),
+    prisma.product.create({ data: { name: "Gobi Manchurian", categoryId: vegGravy.id, price: 130 } }),
+
+    // Tiffin
+    prisma.product.create({ data: { name: "Idli (2 nos)", categoryId: tiffin.id, price: 25 } }),
+    prisma.product.create({ data: { name: "Plain Dosa", categoryId: tiffin.id, price: 50 } }),
+    prisma.product.create({ data: { name: "Egg Dosa", categoryId: tiffin.id, price: 70 } }),
+    prisma.product.create({ data: { name: "Onion Dosa", categoryId: tiffin.id, price: 50 } }),
+    prisma.product.create({ data: { name: "Kal Dosa", categoryId: tiffin.id, price: 25 } }),
+    prisma.product.create({ data: { name: "Chapati (each pc)", categoryId: tiffin.id, price: 20 } }),
+
+    // Parotta Items
+    prisma.product.create({ data: { name: "Chilli Parotta", categoryId: parotta.id, price: 110 } }),
+    prisma.product.create({ data: { name: "Parotta", categoryId: parotta.id, price: 20 } }),
+    prisma.product.create({ data: { name: "Chicken Kothu Parotta", categoryId: parotta.id, price: 130 } }),
+    prisma.product.create({ data: { name: "Egg Kothu Parotta", categoryId: parotta.id, price: 100 } }),
+    prisma.product.create({ data: { name: "Chicken Labba", categoryId: parotta.id, price: 180 } }),
+    prisma.product.create({ data: { name: "Egg Labba", categoryId: parotta.id, price: 160 } }),
+    prisma.product.create({ data: { name: "Plain Labba", categoryId: parotta.id, price: 140 } }),
+    prisma.product.create({ data: { name: "Egg Mass", categoryId: parotta.id, price: 90 } }),
+    prisma.product.create({ data: { name: "Chicken Roll", categoryId: parotta.id, price: 100 } }),
+
+    // Meals / Biriyani
+    prisma.product.create({ data: { name: "Chicken Biriyani", categoryId: biriyani.id, price: 140 } }),
+    prisma.product.create({ data: { name: "Chicken 65 Biriyani", categoryId: biriyani.id, price: 150 } }),
+    prisma.product.create({ data: { name: "Chicken Thokku Biriyani", categoryId: biriyani.id, price: 160 } }),
+    prisma.product.create({ data: { name: "Egg Biriyani", categoryId: biriyani.id, price: 100 } }),
+    prisma.product.create({ data: { name: "Kushka", categoryId: biriyani.id, price: 90 } }),
+    prisma.product.create({ data: { name: "Kushka 1 Kg", categoryId: biriyani.id, price: 140 } }),
+    prisma.product.create({ data: { name: "Nei Soru + Dalcha", categoryId: biriyani.id, price: 100 } }),
+    prisma.product.create({ data: { name: "Nei Soru + Chicken", categoryId: biriyani.id, price: 140 } }),
+    prisma.product.create({ data: { name: "Chicken Mini Bucket", categoryId: biriyani.id, price: 750 } }),
+    prisma.product.create({ data: { name: "Limited Meals", categoryId: biriyani.id, price: 120 } }),
+
+    // Chinese
+    prisma.product.create({ data: { name: "Chicken Rice", categoryId: chinese.id, price: 140 } }),
+    prisma.product.create({ data: { name: "Chicken Noodles", categoryId: chinese.id, price: 140 } }),
+    prisma.product.create({ data: { name: "Chicken Schezwan Rice", categoryId: chinese.id, price: 160 } }),
+    prisma.product.create({ data: { name: "Chicken Schezwan Noodles", categoryId: chinese.id, price: 160 } }),
+    prisma.product.create({ data: { name: "Egg Rice", categoryId: chinese.id, price: 120 } }),
+    prisma.product.create({ data: { name: "Egg Noodles", categoryId: chinese.id, price: 120 } }),
+    prisma.product.create({ data: { name: "Veg Rice", categoryId: chinese.id, price: 100 } }),
+    prisma.product.create({ data: { name: "Veg Noodles", categoryId: chinese.id, price: 100 } }),
+    prisma.product.create({ data: { name: "Paneer Rice", categoryId: chinese.id, price: 130 } }),
+    prisma.product.create({ data: { name: "Paneer Noodles", categoryId: chinese.id, price: 130 } }),
+    prisma.product.create({ data: { name: "Mushroom Rice", categoryId: chinese.id, price: 130 } }),
+    prisma.product.create({ data: { name: "Mushroom Noodles", categoryId: chinese.id, price: 130 } }),
+    prisma.product.create({ data: { name: "Gobi Rice", categoryId: chinese.id, price: 120 } }),
+    prisma.product.create({ data: { name: "Gobi Noodles", categoryId: chinese.id, price: 120 } }),
+    prisma.product.create({ data: { name: "Schezwan Paneer Rice", categoryId: chinese.id, price: 150 } }),
+    prisma.product.create({ data: { name: "Schezwan Mushroom Rice", categoryId: chinese.id, price: 150 } }),
+    prisma.product.create({ data: { name: "Schezwan Gobi Rice", categoryId: chinese.id, price: 150 } }),
+    prisma.product.create({ data: { name: "Schezwan Paneer Noodles", categoryId: chinese.id, price: 150 } }),
+    prisma.product.create({ data: { name: "Schezwan Mushroom Noodles", categoryId: chinese.id, price: 150 } }),
+    prisma.product.create({ data: { name: "Schezwan Gobi Noodles", categoryId: chinese.id, price: 150 } }),
   ])
 
-  console.log("Products created")
+  console.log(`${products.length} Products created`)
 
-  // Customers
   const customers = await Promise.all([
     prisma.customer.create({ data: { name: "Rahul Sharma", phone: "9876543210", email: "rahul@email.com", address: "MG Road, Bangalore", visitCount: 15, totalSpent: 12500 } }),
     prisma.customer.create({ data: { name: "Priya Patel", phone: "9876543211", email: "priya@email.com", address: "Indiranagar, Bangalore", visitCount: 8, totalSpent: 6400 } }),
     prisma.customer.create({ data: { name: "Amit Singh", phone: "9876543212", email: "amit@email.com", address: "Koramangala, Bangalore", visitCount: 22, totalSpent: 18000 } }),
     prisma.customer.create({ data: { name: "Sneha Reddy", phone: "9876543213", email: "sneha@email.com", address: "Jayanagar, Bangalore", visitCount: 5, totalSpent: 3200 } }),
     prisma.customer.create({ data: { name: "Vikram Joshi", phone: "9876543214", email: "vikram@email.com", address: "Whitefield, Bangalore", visitCount: 12, totalSpent: 9500 } }),
+    prisma.customer.create({ data: { name: "Dinesh Kumar", phone: "9876543215", email: "dinesh@email.com", address: "BTM Layout, Bangalore", visitCount: 6, totalSpent: 4200 } }),
   ])
-
   console.log("Customers created")
 
-  // Vendors
   const vendors = await Promise.all([
     prisma.vendor.create({ data: { name: "Fresh Foods Supply", phone: "9988776651", email: "fresh@supply.com", address: "Azad Market, Delhi", outstandingBalance: 4500 } }),
     prisma.vendor.create({ data: { name: "Dairy Best", phone: "9988776652", email: "dairy@best.com", address: "Lajpat Nagar, Delhi", outstandingBalance: 2800 } }),
     prisma.vendor.create({ data: { name: "Quality Meats", phone: "9988776653", email: "meats@quality.com", address: "Karol Bagh, Delhi", outstandingBalance: 0 } }),
     prisma.vendor.create({ data: { name: "Beverage World", phone: "9988776654", email: "info@beverageworld.com", address: "Connaught Place, Delhi", outstandingBalance: 1500 } }),
   ])
-
   console.log("Vendors created")
 
   const now = new Date()
 
-  // Bills and BillItems (10 bills spread across last 30 days)
+  const getProd = (name: string) => products.find((p) => p.name.startsWith(name))!
+
   const billData = [
-    { daysAgo: 28, customer: customers[0], cash: true, items: [{ product: products[5], qty: 2 }, { product: products[9], qty: 4 }, { product: products[0], qty: 2 }] },
-    { daysAgo: 25, customer: customers[1], cash: false, items: [{ product: products[6], qty: 1 }, { product: products[4], qty: 2 }] },
-    { daysAgo: 21, customer: customers[2], cash: true, items: [{ product: products[5], qty: 3 }, { product: products[7], qty: 1 }, { product: products[1], qty: 3 }] },
-    { daysAgo: 18, customer: customers[3], cash: false, items: [{ product: products[10], qty: 6 }, { product: products[11], qty: 2 }] },
-    { daysAgo: 14, customer: customers[4], cash: true, items: [{ product: products[6], qty: 2 }, { product: products[8], qty: 2 }, { product: products[9], qty: 3 }] },
-    { daysAgo: 10, customer: customers[0], cash: false, items: [{ product: products[7], qty: 1 }, { product: products[16], qty: 1 }, { product: products[2], qty: 2 }] },
-    { daysAgo: 7, customer: customers[2], cash: true, items: [{ product: products[5], qty: 1 }, { product: products[8], qty: 1 }, { product: products[4], qty: 1 }] },
-    { daysAgo: 5, customer: customers[1], cash: false, items: [{ product: products[15], qty: 4 }, { product: products[14], qty: 2 }] },
-    { daysAgo: 3, customer: customers[4], cash: true, items: [{ product: products[12], qty: 2 }, { product: products[11], qty: 1 }, { product: products[3], qty: 1 }] },
-    { daysAgo: 1, customer: customers[3], cash: true, items: [{ product: products[5], qty: 1 }, { product: products[9], qty: 2 }, { product: products[13], qty: 3 }] },
+    { daysAgo: 28, customer: customers[0], cash: true, items: [{ product: getProd("Chicken Biriyani"), qty: 2 }, { product: getProd("Chicken 65 (5 pcs)"), qty: 1 }, { product: getProd("Parotta"), qty: 2 }] },
+    { daysAgo: 25, customer: customers[1], cash: false, items: [{ product: getProd("Limited Meals"), qty: 2 }, { product: getProd("Egg Dosa"), qty: 1 }] },
+    { daysAgo: 21, customer: customers[2], cash: true, items: [{ product: getProd("Chicken Biriyani"), qty: 3 }, { product: getProd("Chilli Chicken (10 pcs)"), qty: 1 }, { product: getProd("Parotta"), qty: 4 }] },
+    { daysAgo: 18, customer: customers[3], cash: false, items: [{ product: getProd("Chicken 65 Boneless (10 pcs)"), qty: 1 }, { product: getProd("Kushka"), qty: 2 }] },
+    { daysAgo: 14, customer: customers[4], cash: true, items: [{ product: getProd("Chicken 65 Biriyani"), qty: 2 }, { product: getProd("Chicken Kothu Parotta"), qty: 1 }, { product: getProd("Lolly Pop (6 pcs) Saucy"), qty: 1 }] },
+    { daysAgo: 10, customer: customers[0], cash: false, items: [{ product: getProd("Dragon Chicken (10 pcs)"), qty: 1 }, { product: getProd("Chicken Rice"), qty: 2 }, { product: getProd("Plain Dosa"), qty: 1 }] },
+    { daysAgo: 7, customer: customers[5], cash: true, items: [{ product: getProd("Kushka 1 Kg"), qty: 1 }, { product: getProd("Chilli Parotta"), qty: 1 }, { product: getProd("Chicken Gravy (2 pcs)"), qty: 2 }] },
+    { daysAgo: 5, customer: customers[1], cash: false, items: [{ product: getProd("Chicken Schezwan Rice"), qty: 1 }, { product: getProd("Chicken Noodles"), qty: 1 }, { product: getProd("Chicken Roll"), qty: 2 }] },
+    { daysAgo: 3, customer: customers[2], cash: true, items: [{ product: getProd("Chicken 65 (5 pcs)"), qty: 2 }, { product: getProd("Ginger Chicken (10 pcs)"), qty: 1 }, { product: getProd("Kushka"), qty: 1 }] },
+    { daysAgo: 1, customer: customers[4], cash: true, items: [{ product: getProd("Chicken Thokku Biriyani"), qty: 1 }, { product: getProd("Egg Rice"), qty: 1 }, { product: getProd("Chicken 65 Boneless (10 pcs)"), qty: 1 }] },
   ]
 
   let billNo = 1001
@@ -163,49 +214,39 @@ async function main() {
       data: {
         billNo: String(billNo),
         customerId: bd.customer.id,
-        subtotal,
-        tax,
-        discount,
-        total,
+        subtotal, tax, discount, total,
         paymentMode: paymentMode as "CASH" | "GPAY",
-        cashAmount,
-        gpayAmount,
+        cashAmount, gpayAmount,
         status: "ACTIVE",
-        createdAt: billDate,
-        updatedAt: billDate,
+        createdAt: billDate, updatedAt: billDate,
         userId: manager.id,
-        items: {
-          create: itemsData,
-        },
+        items: { create: itemsData },
       },
     })
 
-    // Update customer visit count and total spent
     await prisma.customer.update({
       where: { id: bd.customer.id },
-      data: {
-        visitCount: { increment: 1 },
-        totalSpent: { increment: total },
-      },
+      data: { visitCount: { increment: 1 }, totalSpent: { increment: total } },
     })
 
     billNo++
   }
-
   console.log("Bills and bill items created")
 
-  // Expenses (10 spread across last 30 days)
+  const expenseCategories = await prisma.expenseCategory.findMany()
+  const ecMap = (name: string) => expenseCategories.find((e) => e.name === name)!
+
   const expenseData = [
-    { daysAgo: 29, amount: 2500, desc: "Weekly vegetable purchase", cat: expenseCategories[0], vendor: vendors[0], mode: "CASH" },
-    { daysAgo: 26, amount: 1800, desc: "Milk and dairy products", cat: expenseCategories[0], vendor: vendors[1], mode: "CASH" },
-    { daysAgo: 22, amount: 3500, desc: "Chicken and mutton supply", cat: expenseCategories[0], vendor: vendors[2], mode: "GPAY" },
-    { daysAgo: 19, amount: 12000, desc: "Monthly rent payment", cat: expenseCategories[2], vendor: null, mode: "GPAY" },
-    { daysAgo: 17, amount: 450, desc: "Electricity bill", cat: expenseCategories[1], vendor: null, mode: "CASH" },
-    { daysAgo: 14, amount: 3200, desc: "Soft drinks stock", cat: expenseCategories[0], vendor: vendors[3], mode: "CASH" },
-    { daysAgo: 12, amount: 15000, desc: "Staff salaries", cat: expenseCategories[3], vendor: null, mode: "CASH" },
-    { daysAgo: 8, amount: 1200, desc: "Kitchen equipment repair", cat: expenseCategories[4], vendor: null, mode: "CASH" },
-    { daysAgo: 5, amount: 2000, desc: "Facebook ads promotion", cat: expenseCategories[5], vendor: null, mode: "GPAY" },
-    { daysAgo: 2, amount: 850, desc: "Cleaning supplies", cat: expenseCategories[0], vendor: vendors[0], mode: "CARD" },
+    { daysAgo: 29, amount: 2500, desc: "Weekly vegetable purchase", cat: "Food Supplies", vendor: vendors[0], mode: "CASH" },
+    { daysAgo: 26, amount: 1800, desc: "Milk and dairy products", cat: "Food Supplies", vendor: vendors[1], mode: "CASH" },
+    { daysAgo: 22, amount: 3500, desc: "Chicken and mutton supply", cat: "Food Supplies", vendor: vendors[2], mode: "GPAY" },
+    { daysAgo: 19, amount: 12000, desc: "Monthly rent payment", cat: "Rent", vendor: null, mode: "GPAY" },
+    { daysAgo: 17, amount: 450, desc: "Electricity bill", cat: "Utilities", vendor: null, mode: "CASH" },
+    { daysAgo: 14, amount: 3200, desc: "Masala and spice stock", cat: "Food Supplies", vendor: vendors[0], mode: "CASH" },
+    { daysAgo: 12, amount: 15000, desc: "Staff salaries", cat: "Salary", vendor: null, mode: "CASH" },
+    { daysAgo: 8, amount: 1200, desc: "Kitchen equipment repair", cat: "Maintenance", vendor: null, mode: "CASH" },
+    { daysAgo: 5, amount: 2000, desc: "Social media ads", cat: "Marketing", vendor: null, mode: "GPAY" },
+    { daysAgo: 2, amount: 850, desc: "Cleaning supplies", cat: "Food Supplies", vendor: vendors[0], mode: "CARD" },
   ]
 
   for (const ed of expenseData) {
@@ -217,19 +258,15 @@ async function main() {
       data: {
         amount: ed.amount,
         description: ed.desc,
-        expenseCategoryId: ed.cat.id,
+        expenseCategoryId: ecMap(ed.cat).id,
         vendorId: ed.vendor?.id ?? null,
         paymentMode: ed.mode as "CASH" | "GPAY" | "CARD",
-        date: expDate,
-        createdAt: expDate,
-        updatedAt: expDate,
+        date: expDate, createdAt: expDate, updatedAt: expDate,
       },
     })
   }
-
   console.log("Expenses created")
 
-  // Orders with payments
   const orderData = [
     { daysAgo: 20, customer: customers[0], total: 5000, advance: 2000, status: "COMPLETED", deliveryDaysAgo: 18 },
     { daysAgo: 15, customer: customers[2], total: 8000, advance: 3000, status: "COMPLETED", deliveryDaysAgo: 13 },
@@ -245,7 +282,7 @@ async function main() {
     orderDate.setDate(orderDate.getDate() - od.daysAgo)
     orderDate.setHours(10, 0, 0, 0)
 
-    let deliveryDate: Date | null = null
+    let deliveryDate: Date
     if (od.deliveryDaysAgo >= 0) {
       deliveryDate = new Date(now)
       deliveryDate.setDate(deliveryDate.getDate() - od.deliveryDaysAgo)
@@ -262,32 +299,19 @@ async function main() {
       data: {
         orderNo: String(orderNo),
         customerId: od.customer.id,
-        orderDate,
-        deliveryDate,
-        advance: od.advance,
-        balance,
+        orderDate, deliveryDate,
+        advance: od.advance, balance,
         totalAmount: od.total,
         status: od.status as "COMPLETED" | "PENDING_BALANCE" | "UPCOMING",
         userId: manager.id,
-        payments: {
-          create: [
-            {
-              amount: od.advance,
-              mode: "CASH",
-              type: "ADVANCE",
-              createdAt: orderDate,
-            },
-          ],
-        },
+        payments: { create: [{ amount: od.advance, mode: "CASH", type: "ADVANCE", createdAt: orderDate }] },
       },
     })
 
     orderNo++
   }
-
   console.log("Orders and payments created")
 
-  // Collections
   const collectionData = [
     { daysAgo: 28, cash: 4500, gpay: 2300, advance: 0, balance: 0 },
     { daysAgo: 21, cash: 6200, gpay: 3100, advance: 2000, balance: 0 },
@@ -302,16 +326,9 @@ async function main() {
     colDate.setHours(23, 0, 0, 0)
 
     await prisma.collection.create({
-      data: {
-        date: colDate,
-        cashAmount: cd.cash,
-        gpayAmount: cd.gpay,
-        advanceAmount: cd.advance,
-        balanceAmount: cd.balance,
-      },
+      data: { date: colDate, cashAmount: cd.cash, gpayAmount: cd.gpay, advanceAmount: cd.advance, balanceAmount: cd.balance },
     })
   }
-
   console.log("Collections created")
   console.log("Seeding completed successfully!")
 }
