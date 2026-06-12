@@ -12,6 +12,9 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/api/auth")
 
   if (!session && !isPublicPath) {
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
     return NextResponse.redirect(new URL("/login", request.url))
   }
 
