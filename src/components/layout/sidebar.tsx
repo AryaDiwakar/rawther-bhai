@@ -17,6 +17,7 @@ import {
   ClipboardCheck,
   BarChart3,
   Mail,
+  MessageSquare,
   ChevronLeft,
   ChevronRight,
   LogOut,
@@ -51,6 +52,7 @@ const navItems: NavItem[] = [
   { label: "Daily Closing", href: "/closing", icon: ClipboardCheck },
   { label: "Reports", href: "/reports", icon: BarChart3 },
   { label: "Email Reports", href: "/email-reports", icon: Mail },
+  { label: "WhatsApp", href: "/whatsapp", icon: MessageSquare },
 ]
 
 interface SidebarProps {
