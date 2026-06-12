@@ -41,16 +41,16 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Products", href: "/dashboard/products", icon: Package },
-  { label: "Billing POS", href: "/dashboard/billing", icon: Receipt },
-  { label: "Customers", href: "/dashboard/customers", icon: Users },
-  { label: "Orders", href: "/dashboard/orders", icon: CalendarClock },
-  { label: "Collections", href: "/dashboard/collections", icon: Wallet },
-  { label: "Expenses", href: "/dashboard/expenses", icon: ArrowUpDown },
-  { label: "Vendors", href: "/dashboard/vendors", icon: Truck },
-  { label: "Daily Closing", href: "/dashboard/daily-closing", icon: ClipboardCheck },
-  { label: "Reports", href: "/dashboard/reports", icon: BarChart3 },
-  { label: "Email Reports", href: "/dashboard/email-reports", icon: Mail },
+  { label: "Products", href: "/products", icon: Package },
+  { label: "Billing POS", href: "/billing", icon: Receipt },
+  { label: "Customers", href: "/customers", icon: Users },
+  { label: "Orders", href: "/orders", icon: CalendarClock },
+  { label: "Collections", href: "/collections", icon: Wallet },
+  { label: "Expenses", href: "/expenses", icon: ArrowUpDown },
+  { label: "Vendors", href: "/vendors", icon: Truck },
+  { label: "Daily Closing", href: "/closing", icon: ClipboardCheck },
+  { label: "Reports", href: "/reports", icon: BarChart3 },
+  { label: "Email Reports", href: "/email-reports", icon: Mail },
 ]
 
 interface SidebarProps {

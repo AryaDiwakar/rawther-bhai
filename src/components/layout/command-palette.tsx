@@ -45,16 +45,16 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Products", href: "/dashboard/products", icon: Package },
-  { label: "Billing POS", href: "/dashboard/billing", icon: Receipt },
-  { label: "Customers", href: "/dashboard/customers", icon: Users },
-  { label: "Orders", href: "/dashboard/orders", icon: CalendarClock },
-  { label: "Collections", href: "/dashboard/collections", icon: Wallet },
-  { label: "Expenses", href: "/dashboard/expenses", icon: ArrowUpDown },
-  { label: "Vendors", href: "/dashboard/vendors", icon: Truck },
-  { label: "Daily Closing", href: "/dashboard/daily-closing", icon: ClipboardCheck },
-  { label: "Reports", href: "/dashboard/reports", icon: BarChart3 },
-  { label: "Email Reports", href: "/dashboard/email-reports", icon: Mail },
+  { label: "Products", href: "/products", icon: Package },
+  { label: "Billing POS", href: "/billing", icon: Receipt },
+  { label: "Customers", href: "/customers", icon: Users },
+  { label: "Orders", href: "/orders", icon: CalendarClock },
+  { label: "Collections", href: "/collections", icon: Wallet },
+  { label: "Expenses", href: "/expenses", icon: ArrowUpDown },
+  { label: "Vendors", href: "/vendors", icon: Truck },
+  { label: "Daily Closing", href: "/closing", icon: ClipboardCheck },
+  { label: "Reports", href: "/reports", icon: BarChart3 },
+  { label: "Email Reports", href: "/email-reports", icon: Mail },
 ]
 
 export function CommandPalette() {
@@ -84,37 +84,37 @@ export function CommandPalette() {
     {
       label: "New Bill",
       icon: Plus,
-      action: () => router.push("/dashboard/billing"),
+      action: () => router.push("/billing"),
     },
     {
       label: "New Product",
       icon: Package,
-      action: () => router.push("/dashboard/products"),
+      action: () => router.push("/products/new"),
     },
     {
       label: "New Expense",
       icon: DollarSign,
-      action: () => router.push("/dashboard/expenses"),
+      action: () => router.push("/expenses/new"),
     },
     {
       label: "New Order",
       icon: CalendarClock,
-      action: () => router.push("/dashboard/orders"),
+      action: () => router.push("/orders/new"),
     },
     {
       label: "New Customer",
       icon: Users,
-      action: () => router.push("/dashboard/customers"),
+      action: () => router.push("/customers/new"),
     },
     {
       label: "Generate Report",
       icon: BarChart3,
-      action: () => router.push("/dashboard/reports"),
+      action: () => router.push("/reports"),
     },
     {
       label: "Daily Closing",
       icon: ClipboardCheck,
-      action: () => router.push("/dashboard/daily-closing"),
+      action: () => router.push("/closing"),
     },
   ]
 
