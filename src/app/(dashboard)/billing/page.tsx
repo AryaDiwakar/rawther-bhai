@@ -14,6 +14,8 @@ import {
   Receipt,
   ShoppingCart,
   IndianRupee,
+  ChevronsUpDown,
+  Check,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -45,6 +47,19 @@ import {
 } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
 import { cn } from "@/lib/utils"
 
 interface Product {
@@ -162,6 +177,16 @@ export default function BillingPage() {
   const [customerName, setCustomerName] = useState("")
   const [customerPhone, setCustomerPhone] = useState("")
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
+  const [customerPopoverOpen, setCustomerPopoverOpen] = useState(false)
+
+  const filteredCustomerOptions = customers.slice(0, 100)
+
+  function selectCustomer(c: Customer) {
+    setSelectedCustomer(c)
+    setCustomerName(c.name)
+    setCustomerPhone(c.phone)
+    setCustomerPopoverOpen(false)
+  }
   const [submitting, setSubmitting] = useState(false)
   const [generatedBill, setGeneratedBill] = useState<any>(null)
   const [cancelDialog, setCancelDialog] = useState(false)
@@ -674,16 +699,71 @@ export default function BillingPage() {
 
                 <div className="space-y-2">
                   <Label>Customer (optional)</Label>
+                  <Popover open={customerPopoverOpen} onOpenChange={setCustomerPopoverOpen}>
+                    <PopoverTrigger
+                      className="group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground text-sm font-medium whitespace-nowrap transition-all outline-none select-none w-full h-10 px-3 dark:border-input dark:bg-input/30 dark:hover:bg-input/50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+                    >
+                      {selectedCustomer
+                        ? `${selectedCustomer.name} (${selectedCustomer.phone})`
+                        : customerName
+                        ? `${customerName}${customerPhone ? ` (${customerPhone})` : ""}`
+                        : "Search or select customer..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full min-w-[300px] p-0" align="start">
+                      <Command filter={(value, search) => {
+                          const c = customers.find(
+                            (x) => (x.name + " " + x.phone) === value
+                          )
+                          if (!c) return 0
+                          const lsearch = search.toLowerCase()
+                          const matches = c.name.toLowerCase().includes(lsearch) ||
+                            c.phone.includes(search)
+                          return matches ? 1 : 0
+                        }}>
+                        <CommandInput placeholder="Search by name or phone..." />
+                        <CommandList>
+                          <CommandEmpty>
+                            No customer found. Type name & phone below.
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {filteredCustomerOptions.map((c) => (
+                              <CommandItem
+                                key={c.id}
+                                value={c.name + " " + c.phone}
+                                onSelect={() => selectCustomer(c)}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    selectedCustomer?.id === c.id ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                <span className="font-medium">{c.name}</span>
+                                <span className="text-muted-foreground ml-2">{c.phone}</span>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <div className="grid grid-cols-2 gap-2">
                     <Input
-                      placeholder="Name"
+                      placeholder="New customer name"
                       value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
+                      onChange={(e) => {
+                        setCustomerName(e.target.value)
+                        setSelectedCustomer(null)
+                      }}
                     />
                     <Input
-                      placeholder="Phone"
+                      placeholder="New customer phone"
                       value={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      onChange={(e) => {
+                        setCustomerPhone(e.target.value)
+                        setSelectedCustomer(null)
+                      }}
                     />
                   </div>
                   {selectedCustomer && (
