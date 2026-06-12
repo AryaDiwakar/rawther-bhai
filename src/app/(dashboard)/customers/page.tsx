@@ -21,6 +21,7 @@ import {
   Trophy,
   Award,
   Medal,
+  Download,
 } from "lucide-react"
 import {
   Table,
@@ -42,6 +43,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
+import { toast } from "sonner"
 import { formatCurrency, formatDate, getInitials } from "@/lib/utils/format"
 
 interface Customer {
@@ -130,6 +132,7 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
 export default function CustomersPage() {
   const router = useRouter()
   const [customers, setCustomers] = useState<Customer[]>([])
+  const [allCustomers, setAllCustomers] = useState<Customer[]>([])
   const [topCustomers, setTopCustomers] = useState<TopCustomer[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -138,6 +141,27 @@ export default function CustomersPage() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+
+  function downloadCSV() {
+    const headers = ["Name", "Phone", "Email", "Visit Count", "Total Spent", "Last Visit"]
+    const rows = allCustomers.map((c) => [
+      c.name,
+      c.phone,
+      c.email || "",
+      String(c.visitCount),
+      Number(c.totalSpent).toFixed(2),
+      c.lastVisit ? new Date(c.lastVisit).toLocaleDateString("en-IN") : "",
+    ])
+    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n")
+    const blob = new Blob([csv], { type: "text/csv" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "customers.csv"
+    a.click()
+    URL.revokeObjectURL(url)
+    toast.success("Customers exported")
+  }
 
   const fetchCustomers = useCallback(async () => {
     try {
@@ -176,6 +200,12 @@ export default function CustomersPage() {
 
   useEffect(() => {
     fetchCustomers()
+    fetch("/api/customers?pageSize=1000")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) setAllCustomers(data.data.customers)
+      })
+      .catch(() => {})
   }, [fetchCustomers])
 
   useEffect(() => {
@@ -197,12 +227,12 @@ export default function CustomersPage() {
     [topCustomers]
   )
   const totalRevenue = useMemo(
-    () => customers.reduce((sum, c) => sum + Number(c.totalSpent), 0),
-    [customers]
+    () => allCustomers.reduce((sum, c) => sum + Number(c.totalSpent), 0),
+    [allCustomers]
   )
   const averageSpend = useMemo(
-    () => (customers.length > 0 ? totalRevenue / customers.length : 0),
-    [customers, totalRevenue]
+    () => (allCustomers.length > 0 ? totalRevenue / allCustomers.length : 0),
+    [allCustomers, totalRevenue]
   )
 
   if (loading && customers.length === 0) return <CustomerSkeleton />
@@ -215,12 +245,18 @@ export default function CustomersPage() {
           <h1 className="text-2xl font-semibold tracking-tight">Customers</h1>
           <p className="text-sm text-muted-foreground">Manage and view customer information</p>
         </div>
-        <Link href="/customers/new">
-          <Button>
-            <Plus className="size-4" />
-            Add Customer
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={downloadCSV} disabled={allCustomers.length === 0}>
+            <Download className="size-4" />
+            Download
           </Button>
-        </Link>
+          <Link href="/customers/new">
+            <Button>
+              <Plus className="size-4" />
+              Add Customer
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -233,7 +269,7 @@ export default function CustomersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loading ? <Skeleton className="h-8 w-20" /> : customers.length + (totalPages > 1 ? "..." : "")}
+              {loading ? <Skeleton className="h-8 w-20" /> : allCustomers.length}
             </div>
             <p className="text-xs text-muted-foreground">Registered customers</p>
           </CardContent>
