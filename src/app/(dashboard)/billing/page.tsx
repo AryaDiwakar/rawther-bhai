@@ -115,7 +115,10 @@ function generateBillHTML(bill: any, items: CartItem[], tax: number, discount: n
         </style>
       </head>
       <body>
-        <h1>RAWTHER BIRYANI</h1>
+        <div style="text-align: center; margin-bottom: 8px;">
+          <img src="/logo.jpg" alt="Logo" style="width: 48px; height: 48px; border-radius: 8px; object-fit: cover;" />
+          <h1 style="margin: 4px 0;">RAWTHER BIRYANI</h1>
+        </div>
         <div class="header">Hotel Management System<br/>${format(new Date(), "dd MMM yyyy, hh:mm a")}</div>
         <div class="bill-no">Bill #${bill.billNo}</div>
         ${bill.customer ? `<div class="header">Customer: ${bill.customer.name} (${bill.customer.phone})</div>` : ""}
@@ -150,7 +153,8 @@ function generateBillHTML(bill: any, items: CartItem[], tax: number, discount: n
         <div class="divider"></div>
         <div class="footer">
           Thank you! Visit again!<br/>
-          Powered by Rawther Biryani
+          Powered by Rawther Biryani<br/>
+          <img src="/logo.jpg" alt="Logo" style="width: 24px; height: 24px; border-radius: 4px; vertical-align: middle; margin-top: 4px;" />
         </div>
       </body>
     </html>

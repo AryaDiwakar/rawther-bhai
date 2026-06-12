@@ -6,7 +6,8 @@ import { signIn } from "next-auth/react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Hotel, Eye, EyeOff, Loader2 } from "lucide-react"
+import Image from "next/image"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -71,8 +72,8 @@ export default function LoginPage() {
 
       <Card className="relative w-full max-w-sm shadow-2xl shadow-primary/5 backdrop-blur-xl">
         <CardHeader className="items-center space-y-1 pb-6 pt-8 text-center">
-          <div className="mb-3 flex size-14 items-center justify-center rounded-2xl bg-primary shadow-lg shadow-primary/20">
-            <Hotel className="size-7 text-primary-foreground" />
+          <div className="mb-3 flex size-14 items-center justify-center rounded-2xl shadow-lg">
+            <Image src="/logo.jpg" alt="Logo" width={48} height={48} className="size-12 rounded-xl object-cover" />
           </div>
           <CardTitle className="text-xl font-semibold tracking-tight">
             Rawther Biryani

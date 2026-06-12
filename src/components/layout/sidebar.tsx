@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { signOut } from "next-auth/react"
+import Image from "next/image"
 import {
   LayoutDashboard,
   Package,
@@ -19,7 +20,6 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  Hotel,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -73,8 +73,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         transition={{ duration: 0.2, ease: "easeInOut" }}
       >
         <div className="flex h-14 items-center gap-3 px-3">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Hotel className="size-4" />
+          <div className="flex size-8 shrink-0 items-center justify-center">
+            <Image src="/logo.jpg" alt="Logo" width={32} height={32} className="rounded-lg object-cover" />
           </div>
           <AnimatePresence mode="wait">
             {!collapsed && (
